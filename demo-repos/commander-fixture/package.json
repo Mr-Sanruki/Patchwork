@@ -1,0 +1,12 @@
+{
+  "name": "commander-fixture",
+  "version": "1.0.0",
+  "description": "Patchwork demo fixture: commander 8 -> 12 (.opts() accessor)",
+  "main": "src/cli.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "commander": "8.0.0"
+  }
+}

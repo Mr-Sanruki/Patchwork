@@ -1,0 +1,12 @@
+{
+  "name": "node-fetch-fixture",
+  "version": "1.0.0",
+  "description": "Patchwork demo fixture: node-fetch 2 -> 3 (CommonJS to ESM)",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "node-fetch": "2.6.7"
+  }
+}

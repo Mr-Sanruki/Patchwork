@@ -35,9 +35,6 @@ temp/
 sandboxes/
 workspaces/
 
-# Benchmark artifacts
-bench/results.json
-
 # OS and Editor files
 .DS_Store
 Thumbs.db

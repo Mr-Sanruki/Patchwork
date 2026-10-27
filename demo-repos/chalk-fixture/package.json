@@ -1,0 +1,12 @@
+{
+  "name": "chalk-fixture",
+  "version": "1.0.0",
+  "description": "Patchwork demo fixture: chalk 4 -> 5 (Pure ESM migration)",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "chalk": "4.1.2"
+  }
+}

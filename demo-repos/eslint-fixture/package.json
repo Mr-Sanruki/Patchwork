@@ -1,0 +1,12 @@
+{
+  "name": "eslint-fixture",
+  "version": "1.0.0",
+  "description": "Patchwork demo fixture: eslint 8 -> 9 (flat config migration)",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "devDependencies": {
+    "eslint": "8.57.0"
+  }
+}
