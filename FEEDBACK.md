@@ -41,9 +41,9 @@ Below is our detailed, constructive feedback detailing exact scenarios, observed
 
 ### 3.1 Strict Diff Output Formatting in Nemotron-70B
 - **Scenario:** Instructing the model to generate a git unified diff (`diff --git a/... b/...`) with standard line headers (`@@ -L,N +L,N @@`).
-- **Observed Behavior:** Without constrained system prompting, Nemotron occasionally wraps unified diffs inside prose explanations or markdown conversational wrappers (`"Here is the diff: ..."`), or omits leading spaces for unchanged context lines.
+- **Observed Behavior:** Without constrained system prompting, Nemotron occasionally wraps unified diffs inside prose explanations or markdown conversational wrappers (`"Here is the diff: ..."`), or omits leading spaces for unchanged context lines. Additionally, LLMs frequently miscount the hunk line count in headers (e.g. declaring `@@ -5,3 +5,3 @@` when only 1 line was added/deleted).
 - **Expected Behavior:** Clean extraction of git diff blocks or support for grammar-constrained / JSON structured outputs for diff hunks.
-- **Patchwork Solution:** We built a dedicated diff validator and sanitizer (`validateUnifiedDiff`) that strips chatter, normalizes hunk headers, and ensures hunks apply cleanly before sandbox testing.
+- **Patchwork Solution:** We built a dedicated diff normalizer and sanitizer (`normalizeHunkHeaders` & `validateCandidateDiff`) that recalculates exact line numbers from hunk bodies, strips conversational chatter, ensures leading context whitespace, and guarantees hunks apply cleanly before sandbox testing.
 
 ---
 
