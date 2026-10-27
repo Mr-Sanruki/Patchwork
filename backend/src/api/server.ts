@@ -43,5 +43,16 @@ export function buildServer(repo?: Repository): FastifyInstance {
     return getSanitizedConfig();
   });
 
+  // Nebius Token Factory runtime model discovery endpoint
+  fastify.get('/api/models', async () => {
+    const { NebiusTokenFactoryClient } = await import('../services/nebius/token-factory.js');
+    const client = new NebiusTokenFactoryClient();
+    const models = await client.discoverModels();
+    return {
+      status: 'ok',
+      ...models,
+    };
+  });
+
   return fastify;
 }
