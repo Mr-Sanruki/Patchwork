@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build and bundles
+dist/
+build/
+.next/
+out/
+
+# SQLite databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+data/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# Temp directories for sandboxes / workspaces
+tmp/
+temp/
+sandboxes/
+workspaces/
+
+# Benchmark artifacts
+bench/results.json
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

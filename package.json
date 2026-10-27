@@ -1,0 +1,24 @@
+{
+  "name": "patchwork",
+  "version": "1.0.0",
+  "description": "Dependency upgrades that fix themselves, and prove it. Multi-agent autonomous dependency migration engine powered by NVIDIA Nemotron on Nebius Token Factory and Tavily.",
+  "author": "Patchwork Team",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "test": "npm run test -w backend",
+    "bench": "npm run bench -w backend",
+    "lint": "npm run lint -w backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
