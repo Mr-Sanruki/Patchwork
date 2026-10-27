@@ -187,5 +187,105 @@ export function buildServer(repo?: Repository): FastifyInstance {
     return repository.listBenchmarks();
   });
 
+  // POST /api/jobs/:id/approve: Human approves and triggers PR creation
+  fastify.post('/api/jobs/:id/approve', async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const { id } = req.params;
+    const job = repository.getJob(id);
+    if (!job) return reply.status(404).send({ error: 'Job not found' });
+
+    if (!job.winningCandidateId) {
+      return reply.status(400).send({ error: 'No winning candidate to publish' });
+    }
+
+    const winner = repository.getCandidate(job.winningCandidateId);
+    if (!winner) return reply.status(404).send({ error: 'Winning candidate not found' });
+
+    // Check if GitHub token is available
+    if (!env.GITHUB_TOKEN || env.GITHUB_TOKEN.length < 5) {
+      // Fallback mode: no GitHub token, return patch download info
+      return {
+        success: true,
+        message: `GitHub token not configured. Download the .patch file at /api/jobs/${id}/patch and apply it manually with: git apply patchwork-${job.packageName}-${job.toVersion}.patch`,
+        prUrl: undefined,
+        fallback: true,
+      };
+    }
+
+    // Real GitHub PR creation via Octokit
+    try {
+      const { Octokit } = await import('@octokit/rest');
+      const octokit = new Octokit({ auth: env.GITHUB_TOKEN });
+
+      // Parse owner/repo from URL
+      const urlMatch = job.repoUrl.match(/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?$/);
+      if (!urlMatch) {
+        return {
+          success: true,
+          message: 'Repository URL is not a GitHub URL. Download the .patch file instead.',
+          prUrl: undefined,
+          fallback: true,
+        };
+      }
+
+      const owner = urlMatch[1];
+      const repo = urlMatch[2];
+      const branchName = job.branchName || `patchwork/upgrade-${job.packageName}-${job.toVersion}`;
+
+      // Get default branch
+      const { data: repoData } = await octokit.repos.get({ owner, repo });
+      const defaultBranch = repoData.default_branch;
+
+      // Get latest commit SHA of default branch
+      const { data: refData } = await octokit.git.getRef({
+        owner,
+        repo,
+        ref: `heads/${defaultBranch}`,
+      });
+      const baseSha = refData.object.sha;
+
+      // Create branch
+      try {
+        await octokit.git.createRef({
+          owner,
+          repo,
+          ref: `refs/heads/${branchName}`,
+          sha: baseSha,
+        });
+      } catch {
+        // Branch may already exist
+      }
+
+      // Create PR
+      const prTitle = job.prTitle || `feat(deps): upgrade ${job.packageName} to ${job.toVersion}`;
+      const prBody = job.prBody || `Patchwork automated upgrade of ${job.packageName} from ${job.fromVersion} to ${job.toVersion}.`;
+
+      const { data: pr } = await octokit.pulls.create({
+        owner,
+        repo,
+        title: prTitle,
+        body: prBody,
+        head: branchName,
+        base: defaultBranch,
+      });
+
+      repository.updateJob(id, { prUrl: pr.html_url });
+
+      return {
+        success: true,
+        message: `Pull Request #${pr.number} created successfully!`,
+        prUrl: pr.html_url,
+        fallback: false,
+      };
+    } catch (err) {
+      const errMsg = (err as Error).message;
+      return {
+        success: false,
+        message: `GitHub PR creation failed: ${errMsg}. Download the .patch file instead.`,
+        prUrl: undefined,
+        fallback: true,
+      };
+    }
+  });
+
   return fastify;
 }
